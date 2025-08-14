@@ -40,8 +40,6 @@
 		A0FC3DAB2B282F1D0069EA0E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A0FC3DAA2B282F1D0069EA0E /* Assets.xcassets */; };
 		A0FC3DAE2B282F1D0069EA0E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A0FC3DAC2B282F1D0069EA0E /* LaunchScreen.storyboard */; };
 		A0FC3DB12B282F1D0069EA0E /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = A0FC3DB02B282F1D0069EA0E /* main.m */; };
-		E981F7442E4E1319001178AF /* GJLConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = E981F7432E4E1319001178AF /* GJLConfig.m */; };
-		E981F7482E4E1330001178AF /* GJLWebSocketManager.m in Sources */ = {isa = PBXBuildFile; fileRef = E981F7472E4E1330001178AF /* GJLWebSocketManager.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -131,10 +129,6 @@
 		A0FC3EAE2B2855AC0069EA0E /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
 		CC0F95EC41CD11CE487F313E /* Pods-GJLocalDigitalDemo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GJLocalDigitalDemo.release.xcconfig"; path = "Target Support Files/Pods-GJLocalDigitalDemo/Pods-GJLocalDigitalDemo.release.xcconfig"; sourceTree = "<group>"; };
 		CDE763B79F6CA6E21DE1F3CE /* Pods-GJLocalDigitalDemo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GJLocalDigitalDemo.debug.xcconfig"; path = "Target Support Files/Pods-GJLocalDigitalDemo/Pods-GJLocalDigitalDemo.debug.xcconfig"; sourceTree = "<group>"; };
-		E981F7422E4E1319001178AF /* GJLConfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GJLConfig.h; sourceTree = "<group>"; };
-		E981F7432E4E1319001178AF /* GJLConfig.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GJLConfig.m; sourceTree = "<group>"; };
-		E981F7462E4E1330001178AF /* GJLWebSocketManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GJLWebSocketManager.h; sourceTree = "<group>"; };
-		E981F7472E4E1330001178AF /* GJLWebSocketManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GJLWebSocketManager.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -295,10 +289,6 @@
 		A0FC3D9D2B282F1B0069EA0E /* GJLocalDigitalDemo */ = {
 			isa = PBXGroup;
 			children = (
-				E981F7462E4E1330001178AF /* GJLWebSocketManager.h */,
-				E981F7472E4E1330001178AF /* GJLWebSocketManager.m */,
-				E981F7422E4E1319001178AF /* GJLConfig.h */,
-				E981F7432E4E1319001178AF /* GJLConfig.m */,
 				A03B3DA52E151D3C0000A423 /* GJLocalDigitalDemo.entitlements */,
 				A0D3B8A22B3D740500983153 /* GYAccess */,
 				A039143F2DD72612009FBE81 /* UIColor+Expanded */,
@@ -498,7 +488,6 @@
 				A0AC919F2E00197A00396736 /* GJLAudioPlayerView.m in Sources */,
 				A0BB09402B3C34A700BF0CC1 /* GJLDigitalAnswerModel.m in Sources */,
 				A0DDAA8E2DD192DD005C5430 /* GJLPLAssetReader.m in Sources */,
-				E981F7442E4E1319001178AF /* GJLConfig.m in Sources */,
 				A03914402DD72612009FBE81 /* UIColor+Expanded.m in Sources */,
 				A0DDAA952DD19499005C5430 /* GJLGCDNEWTimer.m in Sources */,
 				A0C35E012DDC5E6000FA89D5 /* ReadWavPCMViewController.m in Sources */,
@@ -510,7 +499,6 @@
 				A0D3B8A52B3D740500983153 /* GYAccess.m in Sources */,
 				A04821E62B2C4EC8005E06BD /* SVProgressHUD.m in Sources */,
 				A04822222B2C5FF6005E06BD /* GJCheckNetwork.m in Sources */,
-				E981F7482E4E1330001178AF /* GJLWebSocketManager.m in Sources */,
 				A0FC3DB12B282F1D0069EA0E /* main.m in Sources */,
 				A04821E52B2C4EC8005E06BD /* SVProgressAnimatedView.m in Sources */,
 				A0DDAA912DD1932D005C5430 /* GJLPCMManager.m in Sources */,

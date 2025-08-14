@@ -106,6 +106,10 @@
 		A0FC3EB12B2855C40069EA0E /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A0FC3EB02B2855C40069EA0E /* MetalKit.framework */; };
 		A0FC3EB32B2859AA0069EA0E /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A0FC3EB22B2859AA0069EA0E /* OpenGLES.framework */; };
 		A0FC3EB52B285B800069EA0E /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A0FC3EB42B285B800069EA0E /* SystemConfiguration.framework */; };
+		E981F7392E4E1093001178AF /* GJLWebSocketManager.h in Headers */ = {isa = PBXBuildFile; fileRef = E981F7372E4E1093001178AF /* GJLWebSocketManager.h */; };
+		E981F73A2E4E1093001178AF /* GJLWebSocketManager.m in Sources */ = {isa = PBXBuildFile; fileRef = E981F7382E4E1093001178AF /* GJLWebSocketManager.m */; };
+		E981F7402E4E1309001178AF /* GJLConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = E981F73E2E4E1309001178AF /* GJLConfig.h */; };
+		E981F7412E4E1309001178AF /* GJLConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = E981F73F2E4E1309001178AF /* GJLConfig.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -212,6 +216,10 @@
 		A0FC3EB42B285B800069EA0E /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		A0FC3EB62B285BFD0069EA0E /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = System/Library/Frameworks/CoreTelephony.framework; sourceTree = SDKROOT; };
 		A0FC3EB82B285C0D0069EA0E /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		E981F7372E4E1093001178AF /* GJLWebSocketManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GJLWebSocketManager.h; sourceTree = "<group>"; };
+		E981F7382E4E1093001178AF /* GJLWebSocketManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GJLWebSocketManager.m; sourceTree = "<group>"; };
+		E981F73E2E4E1309001178AF /* GJLConfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GJLConfig.h; sourceTree = "<group>"; };
+		E981F73F2E4E1309001178AF /* GJLConfig.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GJLConfig.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -399,6 +407,10 @@
 		A0FC3D782B282DC40069EA0E = {
 			isa = PBXGroup;
 			children = (
+				E981F73E2E4E1309001178AF /* GJLConfig.h */,
+				E981F73F2E4E1309001178AF /* GJLConfig.m */,
+				E981F7372E4E1093001178AF /* GJLWebSocketManager.h */,
+				E981F7382E4E1093001178AF /* GJLWebSocketManager.m */,
 				A0FC3D842B282DC40069EA0E /* GJLocalDigitalSDK */,
 				A0FC3D832B282DC40069EA0E /* Products */,
 				A0FC3E992B2840BC0069EA0E /* Frameworks */,
@@ -532,11 +544,13 @@
 				A0E72B4D2DD5E114006F0809 /* GJLDigitalConfig.h in Headers */,
 				A0C35E712DE6002500FA89D5 /* lightweightsemaphore.h in Headers */,
 				A0C35E722DE6002500FA89D5 /* readerwritercircularbuffer.h in Headers */,
+				E981F7402E4E1309001178AF /* GJLConfig.h in Headers */,
 				A0C35E732DE6002500FA89D5 /* readerwriterqueue.h in Headers */,
 				A0C35E742DE6002500FA89D5 /* concurrentqueue.h in Headers */,
 				A0C35E752DE6002500FA89D5 /* face_utils.h in Headers */,
 				A0C35E762DE6002500FA89D5 /* malpha.h in Headers */,
 				A0C35E772DE6002500FA89D5 /* aicommon.h in Headers */,
+				E981F7392E4E1093001178AF /* GJLWebSocketManager.h in Headers */,
 				A0C35E782DE6002500FA89D5 /* blendgram.h in Headers */,
 				A0C35E792DE6002500FA89D5 /* dhextctrl.h in Headers */,
 				A0C35E7A2DE6002500FA89D5 /* gjduix.h in Headers */,
@@ -674,11 +688,13 @@
 				A05E10092DCC8C170057BEC4 /* GJLKFAudioConfig.m in Sources */,
 				A05E0FFB2DCC8BD00057BEC4 /* GJLAudioPlayer.mm in Sources */,
 				A0FC3DC42B2830CE0069EA0E /* GJLDigitalManager.mm in Sources */,
+				E981F7412E4E1309001178AF /* GJLConfig.m in Sources */,
 				A0BB09242B3ACCA000BF0CC1 /* GJLGlobalFunc.m in Sources */,
 				A0FC3E982B283E7E0069EA0E /* DigitalHumanDriven.mm in Sources */,
 				A0E8C97E2B29CD5A0089DEE7 /* GJLOpenUDID.m in Sources */,
 				A0FC3EA92B2855430069EA0E /* shaders.metal in Sources */,
 				A0A336A32B31499800C07A38 /* DigitalConfigModel.m in Sources */,
+				E981F73A2E4E1093001178AF /* GJLWebSocketManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

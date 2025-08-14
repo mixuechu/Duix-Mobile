@@ -26,6 +26,8 @@
 #import "OpenUDID.h"
 #import "UIColor+Expanded.h"
 #import "ReadWavPCMViewController.h"
+#import "GJLPLAssetReader/GJLWebSocketManager.h"
+#import "GJLConfig.h"
 //
 //基础模型 git 地址下载较慢，请下载后自己管理加速
 #define BASEMODELURL   @"https://github.com/GuijiAI/duix.ai/releases/download/v1.0.0/gj_dh_res.zip"
@@ -43,6 +45,8 @@
 @property (nonatomic, strong)UITextView * baseTextView;
 //数字人模型
 @property (nonatomic, strong)UITextView * digitalTextView;
+// 🎨 开始按钮属性，用于控制加载状态
+@property (nonatomic, strong) UIButton *startButton;
 
 @end
 
@@ -102,12 +106,15 @@
     [self.view addSubview:self.digitalTextView];
 
     
-    UIButton * startbtn=[UIButton buttonWithType:UIButtonTypeCustom];
-    startbtn.frame=CGRectMake(40, self.view.frame.size.height-200, self.view.frame.size.width-80, 40);
-    [startbtn setTitle:@"开始" forState:UIControlStateNormal];
-    [startbtn setTitleColor:[UIColor redColor] forState:UIControlStateNormal];
-    [startbtn addTarget:self action:@selector(toStartWav) forControlEvents:UIControlEventTouchDown];
-    [self.view addSubview:startbtn];
+    self.startButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    self.startButton.frame = CGRectMake(40, self.view.frame.size.height-200, self.view.frame.size.width-80, 40);
+    [self.startButton setTitle:@"开始体验数字人" forState:UIControlStateNormal];
+    [self.startButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [self.startButton setBackgroundColor:[UIColor systemBlueColor]];
+    self.startButton.layer.cornerRadius = 8;
+    self.startButton.titleLabel.font = [UIFont boldSystemFontOfSize:16];
+    [self.startButton addTarget:self action:@selector(toStartWav) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:self.startButton];
     
     NSUserDefaults * defaults=[NSUserDefaults standardUserDefaults];
     self.baseTextView.text=[defaults objectForKey:@"BASEMODELURL"]?:BASEMODELURL;
@@ -146,13 +153,72 @@
     {
         return;
     }
+    
+    // 🚀 检查连接状态，如果已经准备好，直接跳转
+    if ([GJLWebSocketManager isConnectionReady]) {
+        NSLog(@"🚀 [USER] Connection already ready, jumping directly");
+        [self _showPlayViewController];
+        return;
+    }
+    
+    // 🔥 用户点击开始时立即预热WebSocket连接，并提供状态反馈
+    NSLog(@"🚀 [USER] Start button clicked, pre-warming WebSocket for TTS");
+    
+    // 🎨 按钮状态控制 - 防止重复点击
+    self.startButton.enabled = NO;
+    [self.startButton setTitle:@"正在连接..." forState:UIControlStateNormal];
+    [self.startButton setBackgroundColor:[UIColor systemGrayColor]];
+    
+    // 🎨 显示优雅的加载动画
+    [SVProgressHUD showWithStatus:@"正在连接数字人服务..."];
+    [SVProgressHUD setDefaultMaskType:SVProgressHUDMaskTypeBlack]; // 防止用户多次点击
+    
+    // 🚀 使用带回调的预连接方法
+    [GJLWebSocketManager preConnectWithConfigCompletion:^(BOOL success, NSError *error) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            // 🎨 恢复按钮状态
+            self.startButton.enabled = YES;
+            [self.startButton setTitle:@"开始体验数字人" forState:UIControlStateNormal];
+            [self.startButton setBackgroundColor:[UIColor systemBlueColor]];
+            
+            // 🎨 隐藏加载动画
+            [SVProgressHUD dismiss];
+            
+            if (success) {
+                NSLog(@"🚀 [USER] ✅ WebSocket pre-warming completed successfully!");
+                // 🎨 显示成功提示（短暂显示）
+                [SVProgressHUD showSuccessWithStatus:@"连接成功！"];
+                
+                // 延迟一点点让用户看到成功状态
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                    [SVProgressHUD dismiss];
+                    [self _showPlayViewController];
+                });
+            } else {
+                NSLog(@"❌ [USER] WebSocket pre-warming failed: %@", error.localizedDescription);
+                // 🎨 显示连接失败但仍继续的提示
+                [SVProgressHUD showInfoWithStatus:@"连接异常，但仍可使用"];
+                
+                // 延迟后进入播放界面
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                    [SVProgressHUD dismiss];
+                    // 即使预热失败，也继续进入播放界面，运行时再尝试连接
+                    [self _showPlayViewController];
+                });
+            }
+        });
+    }];
+}
+
+- (void)_showPlayViewController {
     ReadWavPCMViewController * vc=[[ReadWavPCMViewController alloc] init];
     vc.basePath=self.basePath;
     vc.digitalPath=self.digitalPath;
  
     vc.modalPresentationStyle=UIModalPresentationFullScreen;
     [self presentViewController:vc animated:YES completion:^{
-        
+        NSLog(@"🎯 [UI] Switched to PlayViewController, connection state: %s", 
+              [GJLWebSocketManager isConnectionReady] ? "READY" : "NOT_READY");
     }];
 }
 

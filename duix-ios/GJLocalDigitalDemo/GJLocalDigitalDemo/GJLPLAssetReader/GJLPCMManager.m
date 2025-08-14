@@ -8,11 +8,12 @@
 #import "GJLPCMManager.h"
 #import "GJLPLAssetReader.h"
 #import "GJLGCDNEWTimer.h"
+#import "GJLWebSocketManager.h"
+#import "GJLConfig.h"
 #import <GJLocalDigitalSDK/GJLocalDigitalSDK.h>
 
 #define MAXDATALENGHT 64000
-// 🔄 切换到中转服务 (通过Cloudflare公网tunnel)
-static NSString * const kVolcWSURL = @"wss://ash-heights-yard-mixed.trycloudflare.com";
+// 🔄 切换到中转服务 (通过Cloudflare公网tunnel) - 使用配置文件中的URL
 static NSString * const kVolcAppId = @"3549748956"; // X-Api-App-Key
 static NSString * const kVolcAccessToken = @"wwooHO7HA6pCVuHvRF6kLaOPB9NGUs1K"; // X-Api-Access-Key
 static NSString * const kVolcClusterId = @"volcano_tts"; // Cluster/Resource hint if needed
@@ -45,6 +46,10 @@ static NSString * const kVolcClusterId = @"volcano_tts"; // Cluster/Resource hin
 // 🔄 新增中转服务相关属性
 @property (nonatomic, strong) NSMutableData *audioBuffer;
 @property (nonatomic, assign) BOOL isUsingProxy; // 是否使用中转服务
+@property (nonatomic, strong) GJLWebSocketManager *wsManager; // WebSocket连接管理器
+
+// 获取WebSocket URL的方法
+- (NSString *)getWebSocketURL;
 
 @end
 static GJLPCMManager * manager = nil;
@@ -72,12 +77,22 @@ static GJLPCMManager * manager = nil;
         self.wavArr=[[NSMutableArray alloc] init];
         self.volc_queue = dispatch_queue_create("com.digitalsdk.volc_queue", DISPATCH_QUEUE_SERIAL);
         
+        // 🚀 初始化WebSocket管理器
+        self.wsManager = [GJLWebSocketManager sharedManager];
+        self.isUsingProxy = YES;
+        
 //        [self setupAudioSession];
 
         
     }
     return self;
 }
+
+// 获取WebSocket URL的方法
+- (NSString *)getWebSocketURL {
+    return [GJLConfig webSocketURL];
+}
+
 - (void)speakWavPath:(NSString *)wavPath
 {
    
@@ -279,9 +294,8 @@ static GJLPCMManager * manager = nil;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
         NSLog(@"🔥 [TTS] ⚡ Starting TTS process via PROXY on HIGH PRIORITY queue");
         [weakSelf _proxyStartIfNeeded];
-        [weakSelf _proxyReceiveLoop];
         
-        // 🔄 使用简化协议发送TTS请求
+        // 🔄 使用简化协议发送TTS请求 - 连接建立后会自动发送
         [weakSelf _proxySendTTSRequest:text];
     });
 }
@@ -293,7 +307,7 @@ static GJLPCMManager * manager = nil;
         NSLog(@"🔥 [TTS] WebSocket already exists, skipping initialization");
         return; 
     }
-    NSLog(@"🔥 [TTS] ⚡ Creating OPTIMIZED WebSocket connection to: %@", kVolcWSURL);
+    NSLog(@"🔥 [TTS] ⚡ Creating OPTIMIZED WebSocket connection to: %@", [self getWebSocketURL]);
     NSURLSessionConfiguration *cfg = [NSURLSessionConfiguration defaultSessionConfiguration];
     // 🚀 网络优化配置
     cfg.timeoutIntervalForRequest = 10; // 减少请求超时
@@ -307,7 +321,7 @@ static GJLPCMManager * manager = nil;
                                    @"X-Api-Connect-Id": [[NSUUID UUID] UUIDString].lowercaseString };
     NSLog(@"🔥 [TTS] Auth headers: App-Key=%@, Access-Key=%@", kVolcAppId, kVolcAccessToken);
     self.volcSession = [NSURLSession sessionWithConfiguration:cfg delegate:self delegateQueue:nil];
-    self.volcWS = [self.volcSession webSocketTaskWithURL:[NSURL URLWithString:kVolcWSURL]];
+    self.volcWS = [self.volcSession webSocketTaskWithURL:[NSURL URLWithString:[self getWebSocketURL]]];
     [self.volcWS resume];
     self.volcRunning = YES;
     NSLog(@"🔥 [TTS] WebSocket started, volcRunning = YES");
@@ -750,53 +764,38 @@ static GJLPCMManager * manager = nil;
 
 - (void)_proxyStartIfNeeded
 {
-    NSLog(@"🔄 [PROXY] _proxyStartIfNeeded called");
-    if (self.volcSession && self.volcWS) { 
-        NSLog(@"🔄 [PROXY] WebSocket already exists, skipping initialization");
-        return; 
-    }
-    NSLog(@"🔄 [PROXY] ⚡ Creating WebSocket connection to proxy: %@", kVolcWSURL);
-    NSURLSessionConfiguration *cfg = [NSURLSessionConfiguration defaultSessionConfiguration];
-    cfg.timeoutIntervalForRequest = 10;
-    cfg.timeoutIntervalForResource = 15;
-    cfg.allowsCellularAccess = YES;
-    cfg.waitsForConnectivity = NO;
+    NSLog(@"🔄 [PROXY] _proxyStartIfNeeded called - using WebSocket Manager");
     
-    self.volcSession = [NSURLSession sessionWithConfiguration:cfg delegate:self delegateQueue:nil];
-    self.volcWS = [self.volcSession webSocketTaskWithURL:[NSURL URLWithString:kVolcWSURL]];
-    [self.volcWS resume];
-    self.volcRunning = YES;
-    NSLog(@"🔄 [PROXY] WebSocket started, volcRunning = YES");
-    
-    // 开启数字人播放
-    dispatch_async(dispatch_get_main_queue(), ^{
-        NSLog(@"🔄 [PROXY] Starting digital human on main queue");
-        [[GJLDigitalManager manager] newSession];
-        [[GJLDigitalManager manager] startPlaying];
-    });
-}
-
-- (void)_proxyReceiveLoop
-{
-    if (!self.volcWS || !self.volcRunning) { 
-        NSLog(@"❌ [PROXY] _proxyReceiveLoop: WebSocket not ready (WS=%@, Running=%d)", self.volcWS ? @"YES" : @"NO", self.volcRunning);
-        return; 
-    }
-    NSLog(@"🔄 [PROXY] Starting receive loop");
+    // 🚀 使用新的WebSocket管理器
     __weak typeof(self) weakSelf = self;
-    [self.volcWS receiveMessageWithCompletionHandler:^(NSURLSessionWebSocketMessage * _Nullable message, NSError * _Nullable error) {
-        if (error) {
-            NSLog(@"❌ [PROXY] WebSocket error: %@", error.localizedDescription);
+    [self.wsManager ensureConnectionToURL:[self getWebSocketURL] completion:^(BOOL success, NSError *error) {
+        if (success) {
+            NSLog(@"🚀 [WS] ✅ Connection ensured, setting up message handler");
+            weakSelf.volcRunning = YES;
+            
+            // 设置消息处理器
+            weakSelf.wsManager.messageHandler = ^(NSURLSessionWebSocketMessage *message) {
+                [weakSelf _proxyHandleMessage:message];
+            };
+            
+            // 开始接收消息
+            [weakSelf.wsManager startReceiveLoop];
+            
+            // 开启数字人播放
+            dispatch_async(dispatch_get_main_queue(), ^{
+                NSLog(@"🔄 [PROXY] Starting digital human on main queue");
+                [[GJLDigitalManager manager] newSession];
+                [[GJLDigitalManager manager] startPlaying];
+            });
+        } else {
+            NSLog(@"❌ [WS] Connection failed: %@", error.localizedDescription);
             weakSelf.volcRunning = NO;
             [[GJLDigitalManager manager] finishSession];
-            return;
         }
-        if (message) {
-            [weakSelf _proxyHandleMessage:message];
-        }
-        [weakSelf _proxyReceiveLoop];
     }];
 }
+
+// 🚀 旧的接收循环方法已被WebSocket管理器内部处理替代
 
 - (void)_proxySendTTSRequest:(NSString *)text
 {
@@ -814,7 +813,9 @@ static GJLPCMManager * manager = nil;
     }
     
     NSURLSessionWebSocketMessage *message = [[NSURLSessionWebSocketMessage alloc] initWithData:jsonData];
-    [self.volcWS sendMessage:message completionHandler:^(NSError * _Nullable sendError) {
+    
+    // 🚀 使用WebSocket管理器发送消息
+    [self.wsManager sendMessage:message completion:^(NSError * _Nullable sendError) {
         if (sendError) {
             NSLog(@"❌ [PROXY] Failed to send TTS request: %@", sendError.localizedDescription);
         } else {

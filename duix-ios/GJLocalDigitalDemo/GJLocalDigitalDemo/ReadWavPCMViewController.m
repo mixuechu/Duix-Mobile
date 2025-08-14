@@ -179,15 +179,15 @@
 //    [[GJLDigitalManager manager] toRandomMotion];
 //    [[GJLDigitalManager manager] toStartMotion];
     //清空累计的buffer ，initSession里面已经调用，根据业务调整调用clearAudioBuffer
-     NSString * filepath=[[NSBundle mainBundle] pathForResource:@"3.wav" ofType:nil];
     [[GJLPCMManager manager] toStop];
     [[GJLDigitalManager manager]  finishSession];
     [[GJLDigitalManager manager] newSession];
     //如果点击暂停播放音频流，请调用toResume恢复播放音频流
-     if(self.isPause){ [self toResume];}
+    if(self.isPause){ [self toResume];}
     
-     [[GJLPCMManager manager] toSpeakWithPath:filepath];
-    
+    // 使用火山TTS流式发送文本并播放返回的音频
+    NSLog(@"🎯 [MAIN] Calling TTS from toRecord method");
+    [[GJLPCMManager manager] toSpeakTextWithVolc:@"开始我会盯盘，到现在感觉看那个东西非常无聊。亏损了就放着。赚了就体现。现在就这样。爱涨不涨。妨碍我干正事。"]; 
     
 //    self.showView.backgroundColor=[UIColor redColor];
 //    self.showView.frame=CGRectMake(20, 20, 270, 480);

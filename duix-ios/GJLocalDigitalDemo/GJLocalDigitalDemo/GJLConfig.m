@@ -17,7 +17,7 @@
     // 重要：在这里修改您的Cloudflare URL
     // 只需要修改这一个地方，其他URL会自动更新
     // ==========================================
-    return @"wss://ruth-corresponding-oops-scientists.trycloudflare.com";
+    return @"https://intimate-with-howto-keeping.trycloudflare.com";
     
     // 示例：
     // return @"https://your-app.cloudflare.com";
